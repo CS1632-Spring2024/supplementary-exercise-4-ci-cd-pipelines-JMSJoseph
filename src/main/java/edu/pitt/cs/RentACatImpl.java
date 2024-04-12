@@ -1,6 +1,8 @@
 package edu.pitt.cs;
 
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class RentACatImpl implements RentACat {
@@ -18,8 +20,26 @@ public class RentACatImpl implements RentACat {
 	 */
 
 	public boolean returnCat(int id) {
-		// TODO: Fill in
-		return false;
+		Optional<Cat> toReturn = cats.stream().filter(c -> c.getId() == id).findFirst();
+		boolean catRented;
+
+		try {
+			catRented = toReturn.get().getRented();
+
+			if (!toReturn.isPresent() || !catRented) {
+				// the cat missing from list or its in the list but hasnt been rented out yet.
+				System.out.println(
+						toReturn.isPresent() ? (toReturn.get().getName() + " is already here!") : "Invalid cat ID:");
+				return false;
+			}
+		} catch (NoSuchElementException e) {
+			return false;
+		}
+
+		// cat is present and hasnt been rented out yet.
+		toReturn.get().returnCat();
+		System.out.println("Welcome back, " + toReturn.get().getName() + "!");
+		return true;
 	}
 
 	/**
@@ -33,8 +53,23 @@ public class RentACatImpl implements RentACat {
 	 */
 
 	public boolean rentCat(int id) {
-		// TODO: Fill in
-		return false;
+		Optional<Cat> toRent = cats.stream().filter(c -> c.getId() == id).findFirst();
+		boolean catRented = toRent.get().getRented();
+
+		try {
+			catRented = toRent.get().getRented();
+
+			if (!toRent.isPresent() || catRented) {
+				System.out.println("Sorry, " + toRent.get().getName() + " is not here!");
+				return false;
+			}
+		} catch (NoSuchElementException e) {
+			return false;
+		}
+
+		toRent.get().rentCat();
+		System.out.println(toRent.get().getName() + " has been rented.");
+		return true;
 	}
 
 	/**
@@ -47,8 +82,13 @@ public class RentACatImpl implements RentACat {
 	 */
 
 	public boolean renameCat(int id, String name) {
-		// TODO: Fill in
-		return false;
+		Optional<Cat> toRename = cats.stream().filter(c -> c.getId() == id).findFirst();
+		if (!toRename.isPresent()) {
+			System.out.println("Invalid cat ID.");
+			return false;
+		}
+		toRename.get().renameCat(name);
+		return true;
 	}
 
 	/**
@@ -62,8 +102,13 @@ public class RentACatImpl implements RentACat {
 	 */
 
 	public String listCats() {
-		// TODO: Fill in
-		return "WRITE CODE FOR THIS";
+		String returnString = "";
+		for (Cat c : cats) {
+			if (!c.getRented()) {
+				returnString += c.toString() + "\n";
+			}
+		}
+		return returnString;
 	}
 
 	/**
